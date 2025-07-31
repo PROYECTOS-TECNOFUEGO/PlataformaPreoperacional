@@ -1,18 +1,16 @@
-// src/pages/Vehiculos.tsx
+// src/pages/Vehiculos/Vehiculos.tsx
 import {
   Box,
   Card,
   Divider,
   Icon,
-  InputAdornment,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-  TextField,
+  InputBase,
   Typography,
+  useTheme,
+  useMediaQuery,
 } from '@mui/material';
 import { useMemo, useState } from 'react';
+import PageContainer from '../../components/Common/PageContainer';
 
 interface Vehicle {
   id: number;
@@ -33,19 +31,17 @@ const vehiculosEjemplo: Vehicle[] = [
 
 const getEstadoColor = (estado: Vehicle['estado']) => {
   switch (estado) {
-    case 'Activo':
-      return 'green';
-    case 'Mantenimiento':
-      return 'orange';
-    case 'Inactivo':
-      return 'red';
-    default:
-      return 'gray';
+    case 'Activo': return 'green';
+    case 'Mantenimiento': return 'orange';
+    case 'Inactivo': return 'red';
+    default: return 'gray';
   }
 };
 
 const Vehiculos = () => {
   const [busqueda, setBusqueda] = useState('');
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   const vehiculosFiltrados = useMemo(() => {
     return vehiculosEjemplo.filter((vehiculo) =>
@@ -54,106 +50,119 @@ const Vehiculos = () => {
   }, [busqueda]);
 
   return (
-    <Box sx={{ display: 'flex', justifyContent: 'center', p: 10, }}>
-      <Card
-        sx={{
-            
-          width: '100%',
-          maxWidth: 910,
-          p: 4,
-          borderRadius: 4,
-          boxShadow: 4,
-        }}
-      >
-        {/* Encabezado y barra de búsqueda */}
-        <Box
+    <PageContainer>
+      <Box display="flex" justifyContent="center" width="100%">
+        <Card
           sx={{
-            
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            mb: 2,
-            flexWrap: 'wrap',
-            gap: 3,
+            width: '100%',
+            maxWidth: 960,
+            p: isMobile ? 2 : 4,
+            borderRadius: 3,
+            boxShadow: 4,
           }}
         >
-          <Typography variant="h6" fontWeight="bold">
-            Vehículos
-          </Typography>
-
-          <TextField
-            size="small"
-            placeholder="Buscar por placa"
-            value={busqueda}
-            onChange={(e) => setBusqueda(e.target.value)}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <Icon color="action">search</Icon>
-                </InputAdornment>
-              ),
-            }}
-            sx={{ width: 260 }}
-          />
-        </Box>
-
-        {/* Lista de vehículos */}
-        <Box
-          sx={{
-            border: '1px solid #e0e0e0',
-            borderRadius: 2,
-            p: 2,
-            maxHeight: '60vh',
-            overflowY: 'auto',
-          }}
-        >
-          {vehiculosFiltrados.length === 0 ? (
-            <Typography variant="body2" color="text.secondary">
-              No se encontraron vehículos.
+          {/* Encabezado y búsqueda */}
+          <Box
+            display="flex"
+            flexDirection={isMobile ? 'column' : 'row'}
+            justifyContent="space-between"
+            alignItems={isMobile ? 'flex-start' : 'center'}
+            mb={2}
+            gap={2}
+          >
+            <Typography variant="h6" fontWeight="bold">
+              Vehículos
             </Typography>
-          ) : (
-            <List disablePadding>
-              {vehiculosFiltrados.map((vehiculo, idx) => (
+
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                border: '1px solid #ccc',
+                borderRadius: 1,
+                pl: 1,
+                width: isMobile ? '100%' : 280,
+                height: 36,
+                backgroundColor: '#f9f9f9',
+              }}
+            >
+              <Icon sx={{ fontSize: 20, color: '#666' }}>search</Icon>
+              <InputBase
+                placeholder="Buscar por placa"
+                value={busqueda}
+                onChange={(e) => setBusqueda(e.target.value)}
+                sx={{ ml: 1, flex: 1, fontSize: 14 }}
+              />
+            </Box>
+          </Box>
+
+          {/* Lista de vehículos */}
+          <Box
+            sx={{
+              border: '1px solid #eee',
+              borderRadius: 2,
+              maxHeight: '50vh',
+              overflowY: 'auto',
+              px: 2,
+              py: 1,
+            }}
+          >
+            {vehiculosFiltrados.length === 0 ? (
+              <Typography color="text.secondary">No se encontraron vehículos.</Typography>
+            ) : (
+              vehiculosFiltrados.map((vehiculo, idx) => (
                 <Box key={vehiculo.id}>
-                  <ListItem>
-                    <ListItemIcon>
-                      <Icon color="primary">directions_car</Icon>
-                    </ListItemIcon>
-                    <ListItemText
-                      primary={
-                        <Typography fontWeight="bold">
+                  <Box
+                    display="flex"
+                    justifyContent="space-between"
+                    alignItems={isMobile ? 'flex-start' : 'center'}
+                    py={1.5}
+                    flexDirection={isMobile ? 'column' : 'row'}
+                    gap={1.5}
+                    sx={{
+                      '&:hover': {
+                        backgroundColor: '#f5f5f5',
+                        transition: 'background 0.2s',
+                      },
+                    }}
+                  >
+                    <Box display="flex" alignItems="center" gap={1}>
+                      <Icon sx={{ color: '#555' }}>directions_car</Icon>
+                      <Box>
+                        <Typography variant="subtitle1" fontWeight="500">
                           {vehiculo.placa}
                         </Typography>
-                      }
-                      secondary={
-                        <>
-                          <Typography variant="body2" component="span">
-                            <strong>Tipo:</strong> {vehiculo.tipo} &nbsp;&nbsp;
-                          </Typography>
-                          <Typography variant="body2" component="span">
-                            <strong>Modelo:</strong> {vehiculo.modelo} &nbsp;&nbsp;
-                          </Typography>
-                          <Typography
-                            variant="body2"
-                            component="span"
-                            sx={{ color: getEstadoColor(vehiculo.estado), fontWeight: 'bold' }}
-                          >
-                            {vehiculo.estado}
-                          </Typography>
-                        </>
-                      }
-                    />
-                  </ListItem>
-                  {idx < vehiculosFiltrados.length - 1 && (
-                    <Divider sx={{ ml: 7 }} />
+                        <Typography variant="body2" color="text.secondary">
+                          {vehiculo.tipo} · {vehiculo.modelo}
+                        </Typography>
+                      </Box>
+                    </Box>
+
+                    <Box
+                      px={1.5}
+                      py={0.5}
+                      sx={{
+                        fontSize: 12,
+                        borderRadius: 10,
+                        backgroundColor: getEstadoColor(vehiculo.estado),
+                        color: '#fff',
+                        fontWeight: 'bold',
+                      }}
+                    >
+                      {vehiculo.estado}
+                    </Box>
+                  </Box>
+
+                  {idx !== vehiculosFiltrados.length - 1 && (
+                    <Divider sx={{ ml: 5 }} />
                   )}
                 </Box>
-              ))}
-            </List>
-          )}
-        </Box>
-      </Card>
-    </Box>
+              ))
+            )}
+          </Box>
+        </Card>
+      </Box>
+    </PageContainer>
   );
 };
 

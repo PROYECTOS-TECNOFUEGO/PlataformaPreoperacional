@@ -1,4 +1,4 @@
-// src/pages/reportes/index.tsx
+// src/pages/reportes/Reportes.tsx
 import React, { useMemo, useState } from 'react';
 import {
   Box,
@@ -13,14 +13,17 @@ import {
   TableBody,
   Icon,
   Paper,
+  useTheme,
+  useMediaQuery,
 } from '@mui/material';
+import PageContainer from '../../components/Common/PageContainer';
 
 interface Reporte {
   key: string;
   codigo: string;
   placa: string;
   conductor: string;
-  fecha: string; // ISO string
+  fecha: string;
   observaciones: string;
 }
 
@@ -56,6 +59,9 @@ const ReportesPage: React.FC = () => {
   const [fechaFin, setFechaFin] = useState('2025-05-23');
   const [busqueda, setBusqueda] = useState('');
 
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
   const dataFiltrada = useMemo(() => {
     return mockReportes.filter((r) => {
       const fechaValida =
@@ -74,124 +80,126 @@ const ReportesPage: React.FC = () => {
   }, [fechaInicio, fechaFin, busqueda]);
 
   return (
-    <Box sx={{ display: 'flex', justifyContent: 'center', p: 10, }}>
-          <Card
-            sx={{
-                
-              width: '100%',
-              maxWidth: 910,
-              p: 4,
-              borderRadius: 4,
-              boxShadow: 4,
-            }}
-          >
-        {/* Título */}
-        <Typography variant="h6" fontWeight="bold" mb={2}>
-          Reportes
-        </Typography>
-
-        {/* Filtros */}
-        <Box
-          display="flex"
-          flexWrap="wrap"
-          gap={2}
-          alignItems="center"
-          mb={2}
+    <PageContainer>
+      <Box display="flex" justifyContent="center">
+        <Card
+          sx={{
+            width: '100%',
+            maxWidth: 960,
+            p: isMobile ? 2 : 4,
+            borderRadius: 3,
+            boxShadow: 4,
+          }}
         >
-          <Box display="flex" flexDirection="column">
-            <label htmlFor="fechaInicio" style={{ fontSize: 12 }}>
-              Desde:
-            </label>
-            <input
-              type="date"
-              id="fechaInicio"
-              value={fechaInicio}
-              onChange={(e) => setFechaInicio(e.target.value)}
-              style={{
-                padding: '6px 8px',
-                borderRadius: 4,
-                border: '1px solid #ccc',
-                fontSize: 14,
-              }}
-            />
-          </Box>
+          {/* Título */}
+          <Typography variant="h6" fontWeight="bold" mb={2}>
+            Reportes
+          </Typography>
 
-          <Box display="flex" flexDirection="column">
-            <label htmlFor="fechaFin" style={{ fontSize: 12 }}>
-              Hasta:
-            </label>
-            <input
-              type="date"
-              id="fechaFin"
-              value={fechaFin}
-              onChange={(e) => setFechaFin(e.target.value)}
-              style={{
-                padding: '6px 8px',
-                borderRadius: 4,
-                border: '1px solid #ccc',
-                fontSize: 14,
-              }}
-            />
-          </Box>
-
+          {/* Filtros */}
           <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              border: '1px solid #ccc',
-              borderRadius: 1,
-              pl: 1,
-              width: 260,
-              height: 36,
-              backgroundColor: '#f9f9f9',
-            }}
+            display="flex"
+            flexWrap="wrap"
+            gap={2}
+            alignItems="center"
+            mb={3}
+            justifyContent="flex-start"
           >
-            <Icon sx={{ fontSize: 20, color: '#666' }}>search</Icon>
-            <InputBase
-              placeholder="Buscar por texto"
-              value={busqueda}
-              onChange={(e) => setBusqueda(e.target.value)}
-              sx={{ ml: 2, flex: 1, fontSize: 14 }}
-            />
-          </Box>
-        </Box>
+            <Box display="flex" flexDirection="column">
+              <label htmlFor="fechaInicio" style={{ fontSize: 12 }}>
+                Desde:
+              </label>
+              <input
+                type="date"
+                id="fechaInicio"
+                value={fechaInicio}
+                onChange={(e) => setFechaInicio(e.target.value)}
+                style={{
+                  padding: '6px 8px',
+                  borderRadius: 4,
+                  border: '1px solid #ccc',
+                  fontSize: 14,
+                }}
+              />
+            </Box>
 
-        {/* Tabla */}
-        <TableContainer component={Paper} elevation={0}>
-          <Table size="small">
-            <TableHead>
-              <TableRow>
-                <TableCell><strong>Código</strong></TableCell>
-                <TableCell><strong>Placa</strong></TableCell>
-                <TableCell><strong>Conductor</strong></TableCell>
-                <TableCell><strong>Fecha</strong></TableCell>
-                <TableCell><strong>Observaciones</strong></TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {dataFiltrada.map((reporte) => (
-                <TableRow key={reporte.key}>
-                  <TableCell>{reporte.codigo}</TableCell>
-                  <TableCell>{reporte.placa}</TableCell>
-                  <TableCell>{reporte.conductor}</TableCell>
-                  <TableCell>{reporte.fecha}</TableCell>
-                  <TableCell>{reporte.observaciones}</TableCell>
-                </TableRow>
-              ))}
-              {dataFiltrada.length === 0 && (
+            <Box display="flex" flexDirection="column">
+              <label htmlFor="fechaFin" style={{ fontSize: 12 }}>
+                Hasta:
+              </label>
+              <input
+                type="date"
+                id="fechaFin"
+                value={fechaFin}
+                onChange={(e) => setFechaFin(e.target.value)}
+                style={{
+                  padding: '6px 8px',
+                  borderRadius: 4,
+                  border: '1px solid #ccc',
+                  fontSize: 14,
+                }}
+              />
+            </Box>
+
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                border: '1px solid #ccc',
+                borderRadius: 1,
+                pl: 1,
+                width: isMobile ? '100%' : 260,
+                height: 36,
+                backgroundColor: '#f9f9f9',
+              }}
+            >
+              <Icon sx={{ fontSize: 20, color: '#666' }}>search</Icon>
+              <InputBase
+                placeholder="Buscar por texto"
+                value={busqueda}
+                onChange={(e) => setBusqueda(e.target.value)}
+                sx={{ ml: 2, flex: 1, fontSize: 14 }}
+              />
+            </Box>
+          </Box>
+
+          {/* Tabla */}
+          <TableContainer component={Paper} elevation={0}>
+            <Table size="small">
+              <TableHead>
                 <TableRow>
-                  <TableCell colSpan={5}>
-                    <Typography color="text.secondary" align="center">
-                      No se encontraron resultados.
-                    </Typography>
-                  </TableCell>
+                  <TableCell><strong>Código</strong></TableCell>
+                  <TableCell><strong>Placa</strong></TableCell>
+                  <TableCell><strong>Conductor</strong></TableCell>
+                  <TableCell><strong>Fecha</strong></TableCell>
+                  <TableCell><strong>Observaciones</strong></TableCell>
                 </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Card>
-    </Box>
+              </TableHead>
+              <TableBody>
+                {dataFiltrada.map((reporte) => (
+                  <TableRow key={reporte.key}>
+                    <TableCell>{reporte.codigo}</TableCell>
+                    <TableCell>{reporte.placa}</TableCell>
+                    <TableCell>{reporte.conductor}</TableCell>
+                    <TableCell>{reporte.fecha}</TableCell>
+                    <TableCell>{reporte.observaciones}</TableCell>
+                  </TableRow>
+                ))}
+                {dataFiltrada.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={5}>
+                      <Typography color="text.secondary" align="center">
+                        No se encontraron resultados.
+                      </Typography>
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Card>
+      </Box>
+    </PageContainer>
   );
 };
 

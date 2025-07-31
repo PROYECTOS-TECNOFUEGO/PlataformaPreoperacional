@@ -1,4 +1,4 @@
-// src/pages/inicio/index.tsx
+// src/pages/Dashboard/Dashboard.tsx
 import React from 'react';
 import {
   Box,
@@ -8,7 +8,9 @@ import {
   Skeleton,
   Icon,
   useTheme,
+  useMediaQuery,
 } from '@mui/material';
+import PageContainer from '../../components/Common/PageContainer';
 
 type ChartPoint = { mes: string; tiempo: number };
 
@@ -22,28 +24,31 @@ const chartData: ChartPoint[] = [
 
 const maxY = Math.max(...chartData.map((d) => d.tiempo));
 
-const InicioPage: React.FC = () => {
+const Dashboard: React.FC = () => {
   const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const loading = false;
 
-  // Escalado simple para el gráfico
   const chartWidth = 400;
   const chartHeight = 200;
   const padding = 40;
   const pointSpacing = (chartWidth - padding * 2) / (chartData.length - 1);
-  const scaleY = (value: number) => chartHeight - padding - (value / maxY) * (chartHeight - padding * 2);
+  const scaleY = (value: number) =>
+    chartHeight - padding - (value / maxY) * (chartHeight - padding * 2);
 
-  const pathD = chartData.map((point, index) => {
-    const x = padding + index * pointSpacing;
-    const y = scaleY(point.tiempo);
-    return `${index === 0 ? 'M' : 'L'} ${x},${y}`;
-  }).join(' ');
+  const pathD = chartData
+    .map((point, index) => {
+      const x = padding + index * pointSpacing;
+      const y = scaleY(point.tiempo);
+      return `${index === 0 ? 'M' : 'L'} ${x},${y}`;
+    })
+    .join(' ');
 
   return (
-    <Box className="page-container" sx={{ p: 2 }}>
+    <PageContainer>
       <Grid container spacing={2} sx={{ mb: 3 }}>
         <Grid item xs={12} sm={6}>
-          <Card sx={{ p: 3, borderRadius: 2 }}>
+          <Card sx={{ p: isMobile ? 2 : 3, borderRadius: 2 }}>
             {loading ? (
               <Skeleton variant="rectangular" height={60} />
             ) : (
@@ -61,7 +66,7 @@ const InicioPage: React.FC = () => {
         </Grid>
 
         <Grid item xs={12} sm={6}>
-          <Card sx={{ p: 3, borderRadius: 2 }}>
+          <Card sx={{ p: isMobile ? 2 : 3, borderRadius: 2 }}>
             {loading ? (
               <Skeleton variant="rectangular" height={60} />
             ) : (
@@ -79,7 +84,7 @@ const InicioPage: React.FC = () => {
         </Grid>
       </Grid>
 
-      <Card sx={{ p: 3, borderRadius: 2 }}>
+      <Card sx={{ p: isMobile ? 2 : 3, borderRadius: 2 }}>
         <Typography variant="h6" gutterBottom>
           Tiempo de uso en el mes
         </Typography>
@@ -87,61 +92,67 @@ const InicioPage: React.FC = () => {
         {loading ? (
           <Skeleton variant="rectangular" height={240} />
         ) : (
-          <Box
-  sx={{
-    mt: 2,
-    width: '100%',
-    overflowX: 'auto',
-  }}
->
-  <Box
-    component="svg"
-    sx={{
-      width: '100%',
-      height: 200,
-      minWidth: 200, // para evitar que se achique demasiado
-    }}
-    viewBox={`0 0 ${chartWidth} ${chartHeight}`}
-  >
-    {/* Ejes */}
-    <line x1={padding} y1={chartHeight - padding} x2={chartWidth - padding} y2={chartHeight - padding} stroke="#ccc" />
-    <line x1={padding} y1={padding} x2={padding} y2={chartHeight - padding} stroke="#ccc" />
+          <Box sx={{ mt: 2, width: '100%', overflowX: 'auto' }}>
+            <Box
+              component="svg"
+              sx={{ width: '100%', height: 200, minWidth: 360 }}
+              viewBox={`0 0 ${chartWidth} ${chartHeight}`}
+            >
+              {/* Ejes */}
+              <line
+                x1={padding}
+                y1={chartHeight - padding}
+                x2={chartWidth - padding}
+                y2={chartHeight - padding}
+                stroke="#ccc"
+              />
+              <line
+                x1={padding}
+                y1={padding}
+                x2={padding}
+                y2={chartHeight - padding}
+                stroke="#ccc"
+              />
 
-    {/* Línea */}
-    <path d={pathD} fill="none" stroke={theme.palette.primary.main} strokeWidth={2} />
+              {/* Línea de datos */}
+              <path
+                d={pathD}
+                fill="none"
+                stroke={theme.palette.primary.main}
+                strokeWidth={2}
+              />
 
-    {/* Puntos */}
-    {chartData.map((point, i) => {
-      const x = padding + i * pointSpacing;
-      const y = scaleY(point.tiempo);
-      return (
-        <circle key={i} cx={x} cy={y} r={4} fill={theme.palette.primary.main} />
-      );
-    })}
+              {/* Puntos de datos */}
+              {chartData.map((point, i) => {
+                const x = padding + i * pointSpacing;
+                const y = scaleY(point.tiempo);
+                return (
+                  <circle key={i} cx={x} cy={y} r={4} fill={theme.palette.primary.main} />
+                );
+              })}
 
-    {/* Etiquetas X */}
-    {chartData.map((point, i) => {
-      const x = padding + i * pointSpacing;
-      return (
-        <text
-          key={i}
-          x={x}
-          y={chartHeight - padding + 15}
-          fontSize={12}
-          textAnchor="middle"
-          fill={theme.palette.text.secondary}
-        >
-          {point.mes}
-        </text>
-      );
-    })}
-  </Box>
-</Box>
-
+              {/* Etiquetas del eje X */}
+              {chartData.map((point, i) => {
+                const x = padding + i * pointSpacing;
+                return (
+                  <text
+                    key={i}
+                    x={x}
+                    y={chartHeight - padding + 15}
+                    fontSize={12}
+                    textAnchor="middle"
+                    fill={theme.palette.text.secondary}
+                  >
+                    {point.mes}
+                  </text>
+                );
+              })}
+            </Box>
+          </Box>
         )}
       </Card>
-    </Box>
+    </PageContainer>
   );
 };
 
-export default InicioPage;
+export default Dashboard;

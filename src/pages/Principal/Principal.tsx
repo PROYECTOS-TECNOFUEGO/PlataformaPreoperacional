@@ -1,4 +1,4 @@
-// src/pages/principal/index.tsx
+// src/pages/principal/principal.tsx
 import React, { useMemo, useState } from 'react';
 import type { FC } from 'react';
 import {
@@ -16,8 +16,11 @@ import {
   TableCell,
   TableBody,
   Paper,
+  useTheme,
+  useMediaQuery,
 } from '@mui/material';
-import { useNavigate } from 'react-router-dom'; 
+import { useNavigate } from 'react-router-dom';
+import PageContainer from '../../components/Common/PageContainer';
 
 interface PrincipalItem {
   key: string;
@@ -36,7 +39,10 @@ const dataSource: PrincipalItem[] = [
 
 const PrincipalPage: FC = () => {
   const [search, setSearch] = useState('');
-  const navigate = useNavigate(); // 👈 Inicializar hook
+  const navigate = useNavigate();
+
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   const filteredData = useMemo(() => {
     const term = search.toLowerCase();
@@ -48,86 +54,103 @@ const PrincipalPage: FC = () => {
   }, [search]);
 
   return (
-    <Box sx={{ display: 'flex', justifyContent: 'center', p: 10 }}>
-      <Card
-        sx={{
-          width: '100%',
-          maxWidth: 910,
-          p: 4,
-          borderRadius: 4,
-          boxShadow: 4,
-        }}
-      >
-        {/* Encabezado */}
-        <Box
+    <PageContainer>
+      <Box display="flex" justifyContent="center">
+        <Card
           sx={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: 2,
-            flexWrap: 'wrap',
-            gap: 2,
+            width: '100%',
+            maxWidth: 960,
+            p: isMobile ? 2 : 4,
+            borderRadius: 3,
+            boxShadow: 4,
           }}
         >
-          <Typography variant="h6" fontWeight="bold">
-            Buscar
-          </Typography>
-
-          <TextField
-            placeholder="Buscar..."
-            size="small"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <Icon>search</Icon>
-                </InputAdornment>
-              ),
+          {/* Encabezado y búsqueda */}
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              flexWrap: 'wrap',
+              gap: 2,
+              mb: 3,
             }}
-            sx={{ width: 240 }}
-          />
+          >
+            <Typography variant="h6" fontWeight="bold">
+              Buscar registros
+            </Typography>
 
-          {/* Botón para ir al formulario */}
-          <Button variant="contained" color="primary" onClick={() => navigate('/formulario')}>
-            Nuevo
-          </Button>
-        </Box>
+            <TextField
+              placeholder="Buscar..."
+              size="small"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <Icon>search</Icon>
+                  </InputAdornment>
+                ),
+              }}
+              sx={{ width: isMobile ? '100%' : 260 }}
+            />
 
-        {/* Tabla */}
-        <TableContainer component={Paper}>
-          <Table size="small">
-            <TableHead>
-              <TableRow>
-                <TableCell><strong>Código</strong></TableCell>
-                <TableCell><strong>Placa</strong></TableCell>
-                <TableCell><strong>Conductor</strong></TableCell>
-                <TableCell><strong>Fecha</strong></TableCell>
-                <TableCell><strong>Acciones</strong></TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {filteredData.map((row) => (
-                <TableRow key={row.key}>
-                  <TableCell>{row.codigo}</TableCell>
-                  <TableCell>{row.placa}</TableCell>
-                  <TableCell>{row.conductor}</TableCell>
-                  <TableCell>{row.fecha}</TableCell>
-                  <TableCell>
-                    <Button size="small" onClick={() => console.log('Print', row.key)}>
-                      <Icon>print</Icon>
-                    </Button>
-                    <Button size="small" onClick={() => console.log('Approve', row.key)}>
-                      <Icon>check</Icon>
-                    </Button>
-                  </TableCell>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => navigate('/formulario')}
+              sx={{ minWidth: 100 }}
+            >
+              Nuevo
+            </Button>
+          </Box>
+
+          {/* Tabla */}
+          <TableContainer component={Paper} elevation={0}>
+            <Table size="small">
+              <TableHead>
+                <TableRow>
+                  <TableCell><strong>Código</strong></TableCell>
+                  <TableCell><strong>Placa</strong></TableCell>
+                  <TableCell><strong>Conductor</strong></TableCell>
+                  <TableCell><strong>Fecha</strong></TableCell>
+                  <TableCell><strong>Acciones</strong></TableCell>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Card>
-    </Box>
+              </TableHead>
+              <TableBody>
+                {filteredData.map((row) => (
+                  <TableRow key={row.key}>
+                    <TableCell>{row.codigo}</TableCell>
+                    <TableCell>{row.placa}</TableCell>
+                    <TableCell>{row.conductor}</TableCell>
+                    <TableCell>{row.fecha}</TableCell>
+                    <TableCell>
+                      <Box display="flex" gap={1}>
+                        <Button size="small" onClick={() => console.log('Print', row.key)}>
+                          <Icon>print</Icon>
+                        </Button>
+                        <Button size="small" onClick={() => console.log('Approve', row.key)}>
+                          <Icon>check</Icon>
+                        </Button>
+                      </Box>
+                    </TableCell>
+                  </TableRow>
+                ))}
+                {filteredData.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={5}>
+                      <Typography align="center" color="text.secondary">
+                        No se encontraron registros.
+                      </Typography>
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Card>
+      </Box>
+    </PageContainer>
   );
 };
 
