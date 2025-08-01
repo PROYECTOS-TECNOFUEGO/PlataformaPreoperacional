@@ -1,50 +1,65 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import {
   Box,
   Card,
   Typography,
   TextField,
-  RadioGroup,
-  FormControlLabel,
   Radio,
   Button,
-  FormControl,
-  FormLabel,
+  Table,
+  TableBody,
+  TableCell,
+  TableRow,
+  TableHead,
   useTheme,
   useMediaQuery,
 } from '@mui/material';
 import PageContainer from '../../components/Common/PageContainer';
-import { useNavigate } from 'react-router-dom'; // 👈 Importa useNavigate
+import { useNavigate } from 'react-router-dom';
 
-const CHECK_LABELS = [
-  'Revisión de luces',
-  'Estado de llantas',
-  'Documentación vigente',
+const DOCUMENTOS = [
+  'Tarjeta de propiedad',
+  'SOAT',
+  'Tecno Mecánica',
+  'Tarjeta/Chip suministro combustible',
+  'Tag Flypass',
+];
+const CARROCERIA = [
+  'Puertas y bisagras',
+  'Parachoques',
+  'Luces externas',
+  'Espejos laterales',
+  'Estado general de la pintura',
 ];
 
-type CheckValue = 'cumple' | 'noCumple' | '';
-
+const ANTES_ENCENDER = [
+  'Freno de mano',
+  'Niveles de aceite',
+  'Revisión visual de fugas',
+  'Tablero de instrumentos',
+  'Sonido anormal al encendido',
+];
 const FormularioPage: React.FC = () => {
-  const initialChecks = useMemo<CheckValue[]>(
-    () => CHECK_LABELS.map(() => ''),
-    []
-  );
-
-  const [conductor, setConductor] = useState('');
-  const [vehiculo, setVehiculo] = useState('');
-  const [checks, setChecks] = useState<CheckValue[]>(initialChecks);
-  const [errores, setErrores] = useState<{ [key: string]: string }>({});
+  const [placa, setPlaca] = useState('');
+  const [proyecto, setProyecto] = useState('');
+  const [destino, setDestino] = useState('');
+  const [documentos, setDocumentos] = useState<Record<string, string>>({});
+  const [errores, setErrores] = useState<Record<string, string>>({});
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const navigate = useNavigate();
 
-  const navigate = useNavigate(); // 👈 Inicializa el hook
+  const handleDocChange = (doc: string, value: string) => {
+    setDocumentos((prev) => ({ ...prev, [doc]: value }));
+  };
 
   const validar = () => {
-    const nuevosErrores: { [key: string]: string } = {};
-    if (!conductor.trim()) nuevosErrores.conductor = 'Ingrese los datos del conductor';
-    if (!vehiculo.trim()) nuevosErrores.vehiculo = 'Ingrese los datos del vehículo';
-    checks.forEach((valor, idx) => {
-      if (!valor) nuevosErrores[`check_${idx}`] = 'Seleccione una opción';
+    const nuevosErrores: Record<string, string> = {};
+    if (!placa.trim()) nuevosErrores.placa = 'Campo obligatorio';
+    if (!proyecto.trim()) nuevosErrores.proyecto = 'Campo obligatorio';
+    if (!destino.trim()) nuevosErrores.destino = 'Campo obligatorio';
+    DOCUMENTOS.forEach((doc) => {
+      if (!documentos[doc]) nuevosErrores[doc] = 'Seleccione una opción';
     });
     setErrores(nuevosErrores);
     return Object.keys(nuevosErrores).length === 0;
@@ -52,91 +67,258 @@ const FormularioPage: React.FC = () => {
 
   const handleSubmit = () => {
     if (!validar()) return;
-    console.log({ conductor, vehiculo, checks });
-    alert('Formulario guardado (mock)');
-  };
-
-  const handleCheckChange = (index: number, value: CheckValue) => {
-    const nuevos = [...checks];
-    nuevos[index] = value;
-    setChecks(nuevos);
+    console.log({ placa, proyecto, destino, documentos });
+    alert('Formulario guardado correctamente');
   };
 
   return (
     <PageContainer>
+    
+      {/* CUERPO */}
       <Box display="flex" justifyContent="center">
         <Card
           sx={{
             width: '100%',
-            maxWidth: 720,
+            maxWidth: 820,
             p: isMobile ? 2 : 4,
             borderRadius: 3,
             boxShadow: 4,
           }}
         >
-          <Typography variant="h6" fontWeight="bold" textAlign="center" mb={3}>
-            Formulario Preoperacional
+          <Typography variant="h6" fontWeight="bold" mb={3}>
+            Información general del conductor principal
           </Typography>
 
-          {/* Datos conductor */}
+          {/* PLACA */}
           <Box mb={2}>
+            <Typography>1. Placa *</Typography>
             <TextField
-              label="Datos del Conductor"
-              multiline
-              minRows={3}
               fullWidth
-              value={conductor}
-              onChange={(e) => setConductor(e.target.value)}
-              error={!!errores.conductor}
-              helperText={errores.conductor}
+              value={placa}
+              onChange={(e) => setPlaca(e.target.value)}
+              error={!!errores.placa}
+              helperText={errores.placa}
             />
           </Box>
 
-          {/* Datos vehículo */}
+          {/* DOCUMENTOS */}
           <Box mb={3}>
+            <Typography>2. Seleccione *</Typography>
+            <Table size="small">
+              <TableHead>
+                <TableRow>
+                  <TableCell></TableCell>
+                  <TableCell align="center">Sí</TableCell>
+                  <TableCell align="center">No</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {DOCUMENTOS.map((doc) => (
+                  <TableRow key={doc}>
+                    <TableCell>{doc}</TableCell>
+                    <TableCell align="center">
+                      <Radio
+                        checked={documentos[doc] === 'si'}
+                        onChange={() => handleDocChange(doc, 'si')}
+                      />
+                    </TableCell>
+                    <TableCell align="center">
+                      <Radio
+                        checked={documentos[doc] === 'no'}
+                        onChange={() => handleDocChange(doc, 'no')}
+                      />
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+            {DOCUMENTOS.some((doc) => errores[doc]) && (
+              <Typography color="error" fontSize="0.8rem" mt={1}>
+                Todos los documentos deben estar seleccionados
+              </Typography>
+            )}
+          </Box>
+
+          {/* PROYECTO */}
+          <Box mb={2}>
+            <Typography>3. Proyecto *</Typography>
             <TextField
-              label="Datos del Vehículo"
-              multiline
-              minRows={3}
               fullWidth
-              value={vehiculo}
-              onChange={(e) => setVehiculo(e.target.value)}
-              error={!!errores.vehiculo}
-              helperText={errores.vehiculo}
+              value={proyecto}
+              onChange={(e) => setProyecto(e.target.value)}
+              error={!!errores.proyecto}
+              helperText={errores.proyecto}
             />
           </Box>
 
-          {/* Controles */}
-          {CHECK_LABELS.map((label, index) => (
-            <Box mb={2} key={index}>
-              <FormControl component="fieldset" error={!!errores[`check_${index}`]} fullWidth>
-                <FormLabel component="legend">{label}</FormLabel>
-                <RadioGroup
-                  row
-                  value={checks[index]}
-                  onChange={(e) => handleCheckChange(index, e.target.value as CheckValue)}
-                >
-                  <FormControlLabel value="cumple" control={<Radio />} label="Cumple" />
-                  <FormControlLabel value="noCumple" control={<Radio />} label="No cumple" />
-                </RadioGroup>
-                {errores[`check_${index}`] && (
-                  <Typography color="error" variant="caption">
-                    {errores[`check_${index}`]}
-                  </Typography>
-                )}
-              </FormControl>
-            </Box>
-          ))}
+          {/* DESTINO */}
+          <Box mb={4}>
+            <Typography>4. Lugar destino *</Typography>
+            <TextField
+              fullWidth
+              value={destino}
+              onChange={(e) => setDestino(e.target.value)}
+              error={!!errores.destino}
+              helperText={errores.destino}
+            />
+          </Box>
 
-          {/* Botones */}
-          <Box display="flex" justifyContent="center" mt={4} gap={2} flexWrap="wrap">
-            <Button variant="contained" color="primary" onClick={handleSubmit}>
+           {/* RESPONSABLE */}
+          <Box mb={4}>
+            <Typography>7. Ingeniero responsable *</Typography>
+            <TextField
+              fullWidth
+              value={destino}
+              onChange={(e) => setDestino(e.target.value)}
+              error={!!errores.destino}
+              helperText={errores.destino}
+            />
+          </Box>
+
+          
+           {/* CONDUCTOR */}
+          <Box mb={4}>
+            <Typography>8. Conductor *</Typography>
+            <TextField
+              fullWidth
+              value={destino}
+              onChange={(e) => setDestino(e.target.value)}
+              error={!!errores.destino}
+              helperText={errores.destino}
+            />
+          </Box>
+
+          {/* CONDUCTOR */}
+          <Box mb={4}>
+            <Typography>11. Kilometraje al inicio de la jornad *</Typography>
+            <TextField
+              fullWidth
+              value={destino}
+              onChange={(e) => setDestino(e.target.value)}
+              error={!!errores.destino}
+              helperText={errores.destino}
+            />
+          </Box>
+
+          {/* DOCUMENTOS */}
+          <Box mb={3}>
+            <Typography>12.Inspección de la carrocería
+              *</Typography>
+            <Table size="small">
+              <TableHead>
+                <TableRow>
+                  <TableCell></TableCell>
+                  <TableCell align="center">Sí</TableCell>
+                  <TableCell align="center">No</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {DOCUMENTOS.map((doc) => (
+                  <TableRow key={doc}>
+                    <TableCell>{doc}</TableCell>
+                    <TableCell align="center">
+                      <Radio
+                        checked={documentos[doc] === 'si'}
+                        onChange={() => handleDocChange(doc, 'si')}
+                      />
+                    </TableCell>
+                    <TableCell align="center">
+                      <Radio
+                        checked={documentos[doc] === 'no'}
+                        onChange={() => handleDocChange(doc, 'no')}
+                      />
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+            {DOCUMENTOS.some((doc) => errores[doc]) && (
+              <Typography color="error" fontSize="0.8rem" mt={1}>
+                Todos los documentos deben estar seleccionados
+              </Typography>
+            )}
+          </Box>
+           {/* DOCUMENTOS */}
+          <Box mb={3}>
+            <Typography>13.Inspección antes de encender el motor 
+              *</Typography>
+            <Table size="small">
+              <TableHead>
+                <TableRow>
+                  <TableCell></TableCell>
+                  <TableCell align="center">Sí</TableCell>
+                  <TableCell align="center">No</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {DOCUMENTOS.map((doc) => (
+                  <TableRow key={doc}>
+                    <TableCell>{doc}</TableCell>
+                    <TableCell align="center">
+                      <Radio
+                        checked={documentos[doc] === 'si'}
+                        onChange={() => handleDocChange(doc, 'si')}
+                      />
+                    </TableCell>
+                    <TableCell align="center">
+                      <Radio
+                        checked={documentos[doc] === 'no'}
+                        onChange={() => handleDocChange(doc, 'no')}
+                      />
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+            {DOCUMENTOS.some((doc) => errores[doc]) && (
+              <Typography color="error" fontSize="0.8rem" mt={1}>
+                Todos los documentos deben estar seleccionados
+              </Typography>
+            )}
+          </Box>
+             <Box mb={3}>
+            <Typography>13.Inspección antes de encender el motor 
+              *</Typography>
+            <Table size="small">
+              <TableHead>
+                <TableRow>
+                  <TableCell></TableCell>
+                  <TableCell align="center">Sí</TableCell>
+                  <TableCell align="center">No</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {DOCUMENTOS.map((doc) => (
+                  <TableRow key={doc}>
+                    <TableCell>{doc}</TableCell>
+                    <TableCell align="center">
+                      <Radio
+                        checked={documentos[doc] === 'si'}
+                        onChange={() => handleDocChange(doc, 'si')}
+                      />
+                    </TableCell>
+                    <TableCell align="center">
+                      <Radio
+                        checked={documentos[doc] === 'no'}
+                        onChange={() => handleDocChange(doc, 'no')}
+                      />
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+            {DOCUMENTOS.some((doc) => errores[doc]) && (
+              <Typography color="error" fontSize="0.8rem" mt={1}>
+                Todos los documentos deben estar seleccionados
+              </Typography>
+            )}
+          </Box>
+          {/* BOTONES */}
+          <Box display="flex" justifyContent="center" gap={2} flexWrap="wrap">
+            <Button variant="contained" onClick={handleSubmit}>
               Guardar
             </Button>
-            <Button variant="outlined" onClick={() => alert('Formulario enviado (prueba)')}>
-              Enviar
-            </Button>
-            <Button variant="text" color="primary" onClick={() => navigate('/principal')}>
+            <Button variant="outlined" onClick={() => navigate('/principal')}>
               Volver
             </Button>
           </Box>
