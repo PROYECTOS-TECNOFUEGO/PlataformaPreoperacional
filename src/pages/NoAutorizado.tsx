@@ -1,6 +1,5 @@
 // src/pages/NoAutorizado.tsx
 
-import React from 'react';
 import { Typography, Box } from '@mui/material';
 import PageContainer from '../components/Common/PageContainer';
 

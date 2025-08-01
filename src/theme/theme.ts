@@ -17,7 +17,8 @@ const theme = createTheme({
     text: {
       primary: '#1c1c1c',
       secondary: '#5f5f5f',
-    },
+      },
+      
   },
   typography: {
     fontFamily: 'Roboto, sans-serif',

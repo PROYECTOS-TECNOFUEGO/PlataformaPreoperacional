@@ -32,7 +32,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     { username: 'conductor', rol: 'conductor', password: '1234' },
   ];
 
-  // Restaurar sesión desde localStorage
+// Restaurar sesión desde localStorage
   useEffect(() => {
     const storedUser = localStorage.getItem('usuario');
     if (storedUser) setUsuario(JSON.parse(storedUser));

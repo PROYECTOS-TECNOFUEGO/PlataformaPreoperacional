@@ -45,7 +45,7 @@ const Sidebar = ({ open }: SidebarProps) => {
     <Box
       sx={{
         width: open ? 200 : 60, // Ancho del sidebar expandido o contraído
-        bgcolor: '#868282ff', // Color de fondo
+        backgroundImage: 'linear-gradient(to bottom, rgba(116, 116, 116, 1), rgba(255, 255, 255,1))', // Color del sidebar.
         height: '100%',
         position: 'fixed',
         top: 64, // Espacio reservado para el header
@@ -116,7 +116,7 @@ const Sidebar = ({ open }: SidebarProps) => {
                           >
                             <Icon>{item.icon}</Icon>
                           </ListItemIcon>
-                          {open && <ListItemText primary={item.text} />}
+                         {open && <ListItemText primary={item.text} sx={{ color: 'white' }}/>}
                         </ListItemButton>
                       </Tooltip>
                     </ListItem>
