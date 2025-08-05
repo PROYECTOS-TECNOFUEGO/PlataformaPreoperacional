@@ -1,58 +1,48 @@
+// src/context/AuthContext.tsx
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import axios from 'axios';
 
-// Interfaz básica de usuario sin password
+// Interfaz de usuario
 interface Usuario {
   username: string;
   rol: 'admin' | 'supervisor' | 'conductor';
 }
 
-// Interfaz interna con password
-type UsuarioConPassword = Usuario & { password: string };
-
-// Contexto de autenticación
 interface AuthContextProps {
   usuario: Usuario | null;
-  login: (username: string, password: string) => boolean;
+  login: (username: string, password: string) => Promise<boolean>;
   logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextProps>({
   usuario: null,
-  login: () => false,
+  login: async () => false,
   logout: () => {},
 });
 
-// Proveedor de contexto
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [usuario, setUsuario] = useState<Usuario | null>(null);
 
-  const usuariosDeEjemplo: UsuarioConPassword[] = [
-    { username: 'admin', rol: 'admin', password: '1234' },
-    { username: 'supervisor', rol: 'supervisor', password: '1234' },
-    { username: 'conductor', rol: 'conductor', password: '1234' },
-  ];
-
-// Restaurar sesión desde localStorage
+  // Restaurar sesión si existe
   useEffect(() => {
     const storedUser = localStorage.getItem('usuario');
     if (storedUser) setUsuario(JSON.parse(storedUser));
   }, []);
 
-  // Login simulado
-  const login = (username: string, password: string): boolean => {
-    const encontrado = usuariosDeEjemplo.find(
-      (u) => u.username === username && u.password === password
-    );
-    if (encontrado) {
-      const userData: Usuario = {
-        username: encontrado.username,
-        rol: encontrado.rol,
-      };
+  // Login real con backend
+  const login = async (username: string, password: string): Promise<boolean> => {
+    try {
+      const res = await axios.post('http://localhost:3000/api/login', {
+        username,
+        password,
+      });
+      const userData: Usuario = res.data;
       setUsuario(userData);
       localStorage.setItem('usuario', JSON.stringify(userData));
       return true;
+    } catch (error) {
+      return false;
     }
-    return false;
   };
 
   // Cerrar sesión
@@ -68,5 +58,4 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   );
 };
 
-// Hook personalizado para acceder al contexto
 export const useAuth = () => useContext(AuthContext);

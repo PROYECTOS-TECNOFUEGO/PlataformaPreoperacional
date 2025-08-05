@@ -1,4 +1,3 @@
-// src/pages/Vehiculos/Vehiculos.tsx
 import {
   Box,
   Card,
@@ -9,8 +8,9 @@ import {
   useTheme,
   useMediaQuery,
 } from '@mui/material';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import PageContainer from '../../components/Common/PageContainer';
+import axios from 'axios';
 
 interface Vehicle {
   id: number;
@@ -19,15 +19,6 @@ interface Vehicle {
   modelo: string;
   estado: 'Activo' | 'Mantenimiento' | 'Inactivo';
 }
-
-const vehiculosEjemplo: Vehicle[] = [
-  { id: 1, placa: 'ABC123', tipo: 'Camión', modelo: 'Volvo FH', estado: 'Activo' },
-  { id: 2, placa: 'XYZ789', tipo: 'Camioneta', modelo: 'Toyota Hilux', estado: 'Mantenimiento' },
-  { id: 3, placa: 'LMN456', tipo: 'Sedán', modelo: 'Mazda 3', estado: 'Activo' },
-  { id: 4, placa: 'DEF222', tipo: 'Camión', modelo: 'Scania R500', estado: 'Inactivo' },
-  { id: 5, placa: 'GHI333', tipo: 'Camioneta', modelo: 'Ford Ranger', estado: 'Activo' },
-  { id: 6, placa: 'JKL987', tipo: 'Sedán', modelo: 'Toyota Corolla', estado: 'Mantenimiento' },
-];
 
 const getEstadoColor = (estado: Vehicle['estado']) => {
   switch (estado) {
@@ -40,14 +31,32 @@ const getEstadoColor = (estado: Vehicle['estado']) => {
 
 const Vehiculos = () => {
   const [busqueda, setBusqueda] = useState('');
+  const [vehiculos, setVehiculos] = useState<Vehicle[]>([]);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
+  useEffect(() => {
+    axios.get('http://localhost:3000/api/vehiculos')
+      .then((res) => {
+        const vehiculosConId = res.data.map((v: any, i: number) => ({
+          id: i + 1,
+          placa: v.placa,
+          tipo: v.tipo,
+          modelo: v.modelo,
+          estado: v.estado,
+        }));
+        setVehiculos(vehiculosConId);
+      })
+      .catch((err) => {
+        console.error('Error al cargar vehículos:', err);
+      });
+  }, []);
+
   const vehiculosFiltrados = useMemo(() => {
-    return vehiculosEjemplo.filter((vehiculo) =>
+    return vehiculos.filter((vehiculo) =>
       vehiculo.placa.toLowerCase().includes(busqueda.toLowerCase())
     );
-  }, [busqueda]);
+  }, [busqueda, vehiculos]);
 
   return (
     <PageContainer>
@@ -61,7 +70,6 @@ const Vehiculos = () => {
             boxShadow: 4,
           }}
         >
-          {/* Encabezado y búsqueda */}
           <Box
             display="flex"
             flexDirection={isMobile ? 'column' : 'row'}
@@ -96,7 +104,6 @@ const Vehiculos = () => {
             </Box>
           </Box>
 
-          {/* Lista de vehículos */}
           <Box
             sx={{
               border: '1px solid #eee',

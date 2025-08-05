@@ -1,5 +1,4 @@
-// src/pages/principal/principal.tsx
-import React, { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import type { FC } from 'react';
 import {
   Box,
@@ -8,7 +7,6 @@ import {
   InputAdornment,
   TextField,
   Typography,
-  Button,
   TableContainer,
   Table,
   TableHead,
@@ -18,31 +16,49 @@ import {
   Paper,
   useTheme,
   useMediaQuery,
+  IconButton,
+  Button,
+  Tooltip,
+  Hidden,
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import PageContainer from '../../components/Common/PageContainer';
+import axios from 'axios';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import EditIcon from '@mui/icons-material/Edit';
+import PrintIcon from '@mui/icons-material/Print';
 
 interface PrincipalItem {
-  key: string;
+  id: string;
   codigo: string;
   placa: string;
   conductor: string;
   fecha: string;
 }
 
-const dataSource: PrincipalItem[] = [
-  { key: '1', codigo: 'F-001', placa: 'ABC123', conductor: 'Juan Pérez', fecha: '2025-07-29' },
-  { key: '2', codigo: 'F-002', placa: 'XYZ789', conductor: 'Ana Gómez', fecha: '2025-07-28' },
-  { key: '3', codigo: 'F-003', placa: 'LMN456', conductor: 'Carlos Ruiz', fecha: '2025-07-28' },
-  { key: '4', codigo: 'F-004', placa: 'DEF222', conductor: 'Luis Ángel', fecha: '2025-07-27' },
-];
-
 const PrincipalPage: FC = () => {
   const [search, setSearch] = useState('');
+  const [dataSource, setDataSource] = useState<PrincipalItem[]>([]);
   const navigate = useNavigate();
-
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
+  useEffect(() => {
+    axios.get('http://localhost:3000/api/formularios')
+      .then(res => {
+        const registros = res.data.map((item: any) => ({
+          id: item.id || item.codigo || '',
+          codigo: item.codigo || 'Sin código',
+          placa: item.placa || 'Desconocida',
+          conductor: item.conductor || 'Sin nombre',
+          fecha: item.fecha || new Date().toISOString().split('T')[0]
+        }));
+        setDataSource(registros);
+      })
+      .catch(err => {
+        console.error('Error al cargar formularios:', err);
+      });
+  }, []);
 
   const filteredData = useMemo(() => {
     const term = search.toLowerCase();
@@ -51,7 +67,7 @@ const PrincipalPage: FC = () => {
       item.placa.toLowerCase().includes(term) ||
       item.conductor.toLowerCase().includes(term)
     );
-  }, [search]);
+  }, [search, dataSource]);
 
   return (
     <PageContainer>
@@ -71,7 +87,7 @@ const PrincipalPage: FC = () => {
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
-              flexWrap: 'wrap',
+              flexDirection: isMobile ? 'column' : 'row',
               gap: 2,
               mb: 3,
             }}
@@ -111,34 +127,74 @@ const PrincipalPage: FC = () => {
               <TableHead>
                 <TableRow>
                   <TableCell><strong>Código</strong></TableCell>
-                  <TableCell><strong>Placa</strong></TableCell>
-                  <TableCell><strong>Conductor</strong></TableCell>
+                  {!isMobile && <TableCell><strong>Placa</strong></TableCell>}
+                  {!isMobile && <TableCell><strong>Conductor</strong></TableCell>}
                   <TableCell><strong>Fecha</strong></TableCell>
                   <TableCell><strong>Acciones</strong></TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {filteredData.map((row) => (
-                  <TableRow key={row.key}>
+                  <TableRow key={row.id}>
                     <TableCell>{row.codigo}</TableCell>
-                    <TableCell>{row.placa}</TableCell>
-                    <TableCell>{row.conductor}</TableCell>
+                    {!isMobile && <TableCell>{row.placa}</TableCell>}
+                    {!isMobile && <TableCell>{row.conductor}</TableCell>}
                     <TableCell>{row.fecha}</TableCell>
                     <TableCell>
-                      <Box display="flex" gap={1}>
-                        <Button size="small" onClick={() => console.log('Print', row.key)}>
-                          <Icon>print</Icon>
-                        </Button>
-                        <Button size="small" onClick={() => console.log('Approve', row.key)}>
-                          <Icon>check</Icon>
-                        </Button>
+                      <Box
+                        display="flex"
+                        gap={0.5}
+                        flexWrap="wrap"
+                        justifyContent={isMobile ? 'center' : 'flex-start'}
+                      >
+                        <Tooltip title="Ver">
+                          <IconButton
+                            onClick={() => navigate(`/ver/${row.id}`)}
+                            sx={{
+                              color: theme.palette.primary.main,
+                              '&:hover': {
+                                backgroundColor: theme.palette.primary.main,
+                                color: '#fff',
+                              },
+                            }}
+                          >
+                            <VisibilityIcon />
+                          </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Editar">
+                          <IconButton
+                            onClick={() => navigate(`/editar/${row.id}`)}
+                            sx={{
+                              color: theme.palette.primary.main,
+                              '&:hover': {
+                                backgroundColor: theme.palette.primary.main,
+                                color: '#fff',
+                              },
+                            }}
+                          >
+                            <EditIcon />
+                          </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Imprimir">
+                          <IconButton
+                            sx={{
+                              color: theme.palette.primary.main,
+                              '&:hover': {
+                                backgroundColor: theme.palette.primary.main,
+                                color: '#fff',
+                              },
+                            }}
+                          >
+                            <PrintIcon />
+                          </IconButton>
+                        </Tooltip>
                       </Box>
                     </TableCell>
                   </TableRow>
                 ))}
                 {filteredData.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={5}>
+                    <TableCell colSpan={isMobile ? 3 : 5}>
                       <Typography align="center" color="text.secondary">
                         No se encontraron registros.
                       </Typography>

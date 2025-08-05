@@ -33,13 +33,14 @@ const Sidebar = ({ open }: SidebarProps) => {
 
   // Ítems del menú lateral, con su texto, ícono, ruta y roles permitidos
   const items = [
-    { text: 'Dashboard', icon: 'dashboard', path: '/dashboard', roles: ['admin'] },
-    { text: 'Principal', icon: 'layers', path: '/principal', roles: ['admin'] },
-    { text: 'Formulario', icon: 'assignment', path: '/formulario', roles: ['admin', 'conductor'] },
-    { text: 'Reportes', icon: 'bar_chart', path: '/reportes', roles: ['admin', 'supervisor'] },
-    { text: 'Usuarios', icon: 'people', path: '/usuarios', roles: ['admin', 'supervisor'] },
-    { text: 'Vehículos', icon: 'commute', path: '/vehiculos', roles: ['admin', 'supervisor'] },
-  ];
+  { text: 'Dashboard', icon: 'dashboard', path: '/dashboard', roles: ['admin'] },
+  { text: 'Principal', icon: 'layers', path: '/principal', roles: ['admin'] },
+  { text: 'Formulario', icon: 'assignment', path: '/formulario', roles: ['admin', 'conductor'] },
+  { text: 'Reportes', icon: 'bar_chart', path: '/reportes', roles: ['admin', 'supervisor'] },
+  { text: 'Usuarios', icon: 'people', path: '/usuarios', roles: ['admin', 'supervisor'] },
+  { text: 'Vehículos', icon: 'commute', path: '/vehiculos', roles: ['admin', 'supervisor'] },
+];
+
 
   return (
     <Box

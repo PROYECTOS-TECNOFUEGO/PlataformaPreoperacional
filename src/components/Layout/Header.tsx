@@ -10,8 +10,7 @@ import {
   Box,
   Menu,
   MenuItem,
-} 
-from '@mui/material';
+} from '@mui/material';
 import { useAuth } from '../../context/AuthContext'; // Hook para acceder al usuario y funciones de autenticación
 import { useNavigate } from 'react-router-dom';
 import LogoTecno from '../../assets/LogoTecno.png'; // Logo institucional
