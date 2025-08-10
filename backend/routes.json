@@ -1,0 +1,4 @@
+{
+  "/api/*": "/$1",
+  "/api/perfil/:username": "/perfiles?username=:username"
+}

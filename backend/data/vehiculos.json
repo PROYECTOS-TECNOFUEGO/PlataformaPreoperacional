@@ -1,0 +1,5 @@
+[
+  { "placa": "ABC123", "tipo": "Camioneta", "modelo": "2022", "estado": "Activo" },
+  { "placa": "XYZ789", "tipo": "Camión",    "modelo": "2020", "estado": "Mantenimiento" },
+  { "placa": "LMN456", "tipo": "SUV",       "modelo": "2021", "estado": "Inactivo" }
+]

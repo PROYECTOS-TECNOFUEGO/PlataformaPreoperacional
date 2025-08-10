@@ -1,0 +1,9 @@
+{
+  "name": "preoperacional-backend",
+  "version": "1.0.0",
+  "type": "commonjs",
+  "scripts": {
+    "dev": "nodemon src/server.cjs",
+    "start": "node src/server.cjs"
+  }
+}
